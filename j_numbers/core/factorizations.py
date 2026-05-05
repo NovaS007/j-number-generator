@@ -1,17 +1,20 @@
 import sympy as sp
+from functools import lru_cache
 
+
+@lru_cache(maxsize=1000000)
 def findPrimeFactors(num):
+    """
+    Returns a list of prime factors (with repetition for exponents).
+    Results are cached for performance.
+    Example: 12 -> [2, 2, 3]
+    """
     if num < 2:
-        return []
+        return ()  # Return tuple for hashability with lru_cache
+
     factors = []
-    for prime, exp in sp.factorint(num).items(): # This returns a dictionary of prime factors and their exponents
-        factors.extend([prime] * exp) # This adds the prime factor to the list as many times as its exponent
-    return factors
+    # sp.factorint returns dict of {prime: exponent}
+    for prime, exp in sp.factorint(num).items():
+        factors.extend([prime] * exp)
 
-def identifyPrime(num):
-    factors = findPrimeFactors(num)
-    if sp.isprime(num):
-        return 1
-    else:
-        return 0
-
+    return tuple(factors)  # Return tuple (immutable, hashable)

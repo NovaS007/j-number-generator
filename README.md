@@ -9,8 +9,8 @@ A **J-number** is a generalized number sequence defined as:
 **J_k(a,b,c) = ab followed by c repeated k times**
 
 Where:
-- `a`, `b`, `c` are digits in your chosen base (0 to base-1)
-- `k` is the number of times digit `c` is repeated
+- `a`, `b`, `c` are digits in your chosen base.
+- `k` is the number of times digit `c` is repeated (k > 0)
 - The base can be any integer ≥ 2
 
 ### Examples in Base 10
@@ -31,7 +31,7 @@ J-numbers are interesting for number theory research because:
 - They follow a predictable mathematical pattern
 - Their prime factorizations often reveal surprising structures
 - Different bases reveal different mathematical properties
-- They're useful for exploring generalized digit sequences
+- They're useful for exploring generalized digit sequences and repunits
 
 ## Installation
 
@@ -45,12 +45,12 @@ J-numbers are interesting for number theory research because:
 ### Setup
 
 1. Clone or download this project
-2. Install dependencies:
+2. Install dependencies by running the following command in your terminal:
 ```bash
 pip install pandas openpyxl sympy
 ```
 
-3. Run the GUI:
+3. Run the GUI application using the following command in your terminal (make sure you're in the project directory):
 ```bash
 python -m j_numbers.gui.main_window
 ```
@@ -74,7 +74,7 @@ The GUI will open with a clean interface for generating and analyzing J-numbers.
 
 #### 1. **Basic Generation**
 
-- **Base**: Choose any base ≥ 2 (default: 10)
+- **Base**: Choose any integer base ≥ 2 (default: 10)
 - **k (max c repeats)**: How many times to repeat digit c (default: 15)
 - Click **"Generate and Save CSV"** to generate all J-numbers
 
@@ -104,7 +104,7 @@ Generate specific J-numbers by providing seed digits:
 - Format: One J-number per row with all data columns
 
 **Excel Export:**
-- Click **"Export to Excel"** button
+- Click **"Export to Excel"** button after generating
 - Prime factors automatically split into separate columns (pf_0, pf_1, etc.)
 - Great for data analysis in Excel/Sheets
 
@@ -243,7 +243,7 @@ results = calculations.getJNumsForAB(a=1, b=2, max_repeat=15, base=10)
 ### "Base must be at least 2"
 - Enter a base value of 2 or higher
 
-### "Seed digits must be between 0 and X"
+### "Seed digits must be between 0 and base-1"
 - For base 10, digits must be 0-9
 - For base 16, digits must be 0-15
 - Adjust based on your chosen base
