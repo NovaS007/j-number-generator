@@ -1,7 +1,4 @@
-try:
-    from . import Factorizations as f
-except ImportError:
-    import Factorizations as f
+from . import factorizations as f
 
 
 def getAllJNums(max_repeat, base=10):

@@ -2,18 +2,13 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import io
 
 try:
-    # Works when run as part of the package
-    from . import GetAllJNums as gjn
-    from .CSVWriter import writeCSV
+    from ..core import calculations as gjn
+    from ..io.csv_writer import writeCSV
 except ImportError:
-    # Works when run directly from the JCalculations folder
-    import GetAllJNums as gjn
-    from CSVWriter import writeCSV
+    from j_numbers.core import calculations as gjn
+    from j_numbers.io.csv_writer import writeCSV
 
 
 class JNumGUI(tk.Tk):
@@ -139,13 +134,6 @@ class JNumGUI(tk.Tk):
 
         ttk.Button(
             button_frame,
-            text="Quick Summary & Plot",
-            style="Secondary.TButton",
-            command=lambda: self._on_summary_clicked()
-        ).pack(side="left", padx=(10, 0))
-
-        ttk.Button(
-            button_frame,
             text="Export to Excel",
             style="Secondary.TButton",
             command=lambda: self._on_export_excel_clicked()
@@ -198,7 +186,7 @@ class JNumGUI(tk.Tk):
 
     def clear_output(self):
         self.output.configure(state="normal")
-        self.clear_output()
+        self.output.delete("1.0", tk.END)
         self.output.configure(state="disabled")
         self.status_var.set("Output cleared.")
 
@@ -293,67 +281,6 @@ class JNumGUI(tk.Tk):
         df["prime_factors_str"] = df["prime_factors"].apply(lambda lst: ";".join(map(str, lst)) if lst else "")
         df["num_prime_factors"] = df["prime_factors"].apply(len)
         return df
-
-
-    def show_summary_and_plot(self, results):
-        """
-        Compute and show a summary dialog and a histogram window for number of prime factors.
-        """
-        df = self._results_to_dataframe(results)
-        total = len(df)
-        if total == 0:
-            messagebox.showinfo("Summary", "No rows to summarize.")
-            return
-
-        num_primes = df["is_prime"].sum() if "is_prime" in df else df["is_prime"].apply(bool).sum()
-        avg_pf = df["num_prime_factors"].mean()
-        median_pf = df["num_prime_factors"].median()
-        max_pf = df["num_prime_factors"].max()
-        # Top primes frequency
-        all_pf = df["prime_factors"].explode().dropna().astype(int)
-        if not all_pf.empty:
-            top_primes = all_pf.value_counts().head(10)
-            top_primes_text = "\n".join([f"{p}: {c}" for p, c in top_primes.items()])
-        else:
-            top_primes_text = "None"
-
-        summary_text = (
-            f"Total unique J-numbers: {total}\n"
-            f"Primes found: {int(num_primes)}\n"
-            f"Avg # prime-factors: {avg_pf:.2f}\n"
-            f"Median # prime-factors: {median_pf}\n"
-            f"Max # prime-factors: {max_pf}\n\n"
-            f"Top primes (value:count):\n{top_primes_text}"
-        )
-
-        # Show summary in messagebox
-        messagebox.showinfo("J-numbers Summary", summary_text)
-
-        # Create a histogram window for num_prime_factors
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.hist(df["num_prime_factors"], bins=range(0, int(max_pf) + 2), align='left', rwidth=0.8)
-        ax.set_xlabel("Number of prime factors (with multiplicity)")
-        ax.set_ylabel("Count")
-        ax.set_title("Distribution of prime-factor counts")
-
-        # Show the plot in a new Tk window embedded
-        plot_win = tk.Toplevel(self)
-        plot_win.title("Prime-factor count distribution")
-        canvas = FigureCanvasTkAgg(fig, master=plot_win)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
-    def _on_summary_clicked(self):
-        # assume results are the last generated or ask user to provide
-        # simplest: prompt user to pick the CSV they saved OR maintain last_results in the GUI
-        try:
-            results = getattr(self, "last_results", None)
-            if results is None:
-                messagebox.showinfo("No data", "No generated results in memory. Generate first, or re-open a saved CSV.")
-                return
-            self.show_summary_and_plot(results)
-        except Exception as e:
-            messagebox.showwarning("Error", str(e))
 
     def _on_export_excel_clicked(self):
         try:
